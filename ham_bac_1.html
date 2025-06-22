@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đồ thị hàm số bậc 1: y = ax + b</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .controls { 
+            margin-bottom: 20px; 
+        }
+        .slider-label { 
+            margin-right: 10px; 
+        }
+        .slider-value { 
+            font-weight: bold; 
+            margin-left: 10px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Đồ thị hàm số bậc 1: y = ax + b</h2>
+        <div class="controls">
+            <label class="slider-label">a:
+                <input type="range" id="aSlider" min="-10" max="10" step="0.1" value="1">
+                <span id="aValue" class="slider-value">1</span>
+            </label>
+            <label class="slider-label" style="margin-left: 30px;">b:
+                <input type="range" id="bSlider" min="-10" max="10" step="0.1" value="0">
+                <span id="bValue" class="slider-value">0</span>
+            </label>
+        </div>
+        <div id="plot" style="width:900px;height:650px;"></div>
+    </div>
+    <script>
+        // Hàm vẽ đồ thị
+        function drawPlot(a, b) {
+            // Tạo dữ liệu cho đường thẳng
+            let x = [-10, 10];
+            let y = x.map(xi => a * xi + b);
+
+            // Tính điểm cắt trục tung (x=0) và trục hoành (y=0)
+            let x_intercept = a !== 0 ? -b / a : null;
+            let y_intercept = b;
+
+            let shapes = [
+                // Trục x
+                {
+                    type: 'line',
+                    x0: -10, y0: 0,
+                    x1: 10, y1: 0,
+                    line: {color: 'gray', width: 1}
+                },
+                // Trục y
+                {
+                    type: 'line',
+                    x0: 0, y0: -10,
+                    x1: 0, y1: 10,
+                    line: {color: 'gray', width: 1}
+                }
+            ];
+
+            // Đánh dấu điểm cắt trục tung
+            let intercepts = [{
+                x: 0, y: y_intercept,
+                text: `(0, ${y_intercept.toFixed(2)})`,
+                showarrow: true,
+                arrowhead: 7,
+                ax: -40,
+                ay: 0,
+                font: {color: 'red'}
+            }];
+
+            // Đánh dấu điểm cắt trục hoành nếu có
+            if (x_intercept !== null && x_intercept >= -10 && x_intercept <= 10) {
+                intercepts.push({
+                    x: x_intercept, y: 0,
+                    text: `(${x_intercept.toFixed(2)}, 0)`,
+                    showarrow: true,
+                    arrowhead: 7,
+                    ax: 0,
+                    ay: 40,
+                    font: {color: 'blue'}
+                });
+            }
+
+            let trace = {
+                x: x,
+                y: y,
+                mode: 'lines',
+                name: 'y = ax + b',
+                line: {color: 'orange', width: 3}
+            };
+
+            let layout = {
+                xaxis: {
+                    range: [-10, 10],
+                    dtick: 1,
+                    gridcolor: '#eee',
+                    zeroline: false,
+                    scaleanchor: 'y', // Giữ tỉ lệ 1:1 giữa x và y
+                    scaleratio: 1
+                },
+                yaxis: {
+                    range: [-10, 10],
+                    dtick: 1,
+                    gridcolor: '#eee',
+                    zeroline: false
+                },
+                shapes: shapes,
+                annotations: intercepts,
+                margin: {t: 30},
+                showlegend: false,
+                width: 900,
+                height: 650
+            };
+
+            Plotly.newPlot('plot', [trace], layout, {
+                responsive: true,
+                staticPlot: true // Tắt tính năng zoom và pan
+            });
+        }
+
+        // Khởi tạo
+        let aSlider = document.getElementById('aSlider');
+        let bSlider = document.getElementById('bSlider');
+        let aValue = document.getElementById('aValue');
+        let bValue = document.getElementById('bValue');
+
+        function updatePlot() {
+            let a = parseFloat(aSlider.value);
+            let b = parseFloat(bSlider.value);
+            aValue.textContent = a;
+            bValue.textContent = b;
+            drawPlot(a, b);
+        }
+
+        aSlider.addEventListener('input', updatePlot);
+        bSlider.addEventListener('input', updatePlot);
+
+        // Vẽ lần đầu
+        updatePlot();
+    </script>
+</body>
+</html>
